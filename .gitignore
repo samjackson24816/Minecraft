@@ -11,6 +11,10 @@ build/
 .idea/libraries/
 *.iws
 *.iml
+
+# Adding this to get rid of workspace.xml file
+.idea/workspace.xml
+
 *.ipr
 out/
 !**/src/main/**/out/
