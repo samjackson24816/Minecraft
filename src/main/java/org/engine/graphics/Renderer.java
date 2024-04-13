@@ -7,12 +7,7 @@ import org.lwjgl.opengl.GL30;
 
 public class Renderer {
 
-    private Shader shader;
-
-    public Renderer(Shader shader) {
-        this.shader = shader;
-    }
-    public void renderMesh(Mesh mesh) {
+    public static void renderMesh(Shader shader, Mesh mesh) {
         GL30.glBindVertexArray(mesh.getVAO());
         GL30.glEnableVertexAttribArray(0);
         GL30.glEnableVertexAttribArray(1);

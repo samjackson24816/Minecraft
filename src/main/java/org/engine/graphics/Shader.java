@@ -5,7 +5,6 @@ import org.engine.math.Vector3f;
 import org.engine.utils.FileUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
-import org.engine.math.Matrix4f;
 
 import java.nio.FloatBuffer;
 
@@ -91,12 +90,7 @@ public class Shader {
     }
 
 
-    public void setUniform(String name, Matrix4f value) {
-        FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
 
-        matrix.put(value.getAll()).flip();
-        GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
-    }
 
     public void bind() {
         GL20.glUseProgram(programID);
