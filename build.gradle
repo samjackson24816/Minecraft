@@ -37,6 +37,9 @@ repositories {
 }
 
 dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 
     implementation "org.lwjgl:lwjgl"
