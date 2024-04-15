@@ -11,7 +11,10 @@ import org.engine.objects.Camera;
 import org.engine.objects.GameObject;
 
 import java.util.ArrayList;
+import java.util.Random;
 
+import static org.engine.maths.MathUtils.modulusAngle;
+import static org.engine.maths.MathUtils.modulusAngleVector;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Main implements Runnable {
@@ -22,12 +25,8 @@ public class Main implements Runnable {
 	public BlockUtils blockUtils = new BlockUtils();
 	public final int WIDTH = 1280, HEIGHT = 760;
 
-	public int[][][] blocks = new int[10][10][10];
-
 	public Material material = new Material("/textures/MinecraftTextures.png");
-	public Mesh mesh = new Mesh(new Vertex[2], new int[2], material);
-	
-	public GameObject object = new GameObject(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1,1,1), mesh);
+	Chunk chunk = new Chunk(0, 0, 0, 16, 16, 16);
 
 
 
@@ -41,10 +40,8 @@ public class Main implements Runnable {
 	
 	public void init() {
 
+		chunk.fillRandom();
 
-		for (int i = 0; i < 2; i++) {
-			mesh.getVertices()[i] = new Vertex(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), new Vector2f(0, 0));
-		}
 		window = new Window(WIDTH, HEIGHT, "Game");
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		renderer = new Renderer(window, shader);
@@ -52,19 +49,11 @@ public class Main implements Runnable {
 		window.create();
 
 		material.create();
-		mesh.create();
 		shader.create();
 		glEnable(GL_DEPTH_TEST);
 		//glDisable(GL_CULL_FACE);
 
 
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				for (int z = 0; z < 10; z++) {
-					blocks[x][y][z] = 3;
-				}
-			}
-		}
 	}
 	
 	public void run() {
@@ -81,58 +70,55 @@ public class Main implements Runnable {
 	private void update() {
 		window.update();
 		camera.update();
+
+		String titleData = "Position: " + camera.getPosition().getX() + ", " + camera.getPosition().getY() + ", " + camera.getPosition().getZ();
+		var displayRot = modulusAngleVector(camera.getRotation());
+		titleData += " | Rotation: " + displayRot.getX() + ", " + displayRot.getY() + ", " + displayRot.getZ();
+		var playerForward = Vector3f.normalize(new Vector3f((float) -Math.sin(Math.toRadians(displayRot.getY())), (float) Math.sin(Math.toRadians(displayRot.getX())), (float) -Math.cos(Math.toRadians(displayRot.getY()))));
+		titleData += " | Forward: " + playerForward.getX() + ", " + playerForward.getY() + ", " + playerForward.getZ();
+		window.setTitleData(titleData);
+
+		// Log the data of the object that the player is looking at
+		var hitInfo = chunk.raycast(camera.getPosition(), playerForward, 100);
+
+		// Print out the info
+		if (hitInfo.hit) {
+			System.out.println("Hit block: " + hitInfo.blockId + " at " + hitInfo.x + ", " + hitInfo.y + ", " + hitInfo.z);
+		}
+
+		// If the player is looking at a block and they click the left mouse button, destroy the block
+		if (Input.isButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) && hitInfo.hit) {
+			chunk.setBlock(hitInfo.x, hitInfo.y, hitInfo.z, 0);
+		}
 	}
-	
+
 	private void render() {
-		System.out.println("Rendering");
-		var vert = new ArrayList<Vertex>();
-		var ind = new ArrayList<Integer>();
 
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				for (int z = 0; z < 10; z++) {
-					if (blocks[x][y][z] > 0) {
-						var position = new Vector3f(x, y, z);
-						for (int i = 0; i < 6; i++) {
+		var object = chunk.getGameObject(material);
 
-							blockUtils.addBlockDataToLists(blocks[x][y][z], i, position, vert, ind);
-						}
-
-					}
-				}
-			}
-		}
-
-		// Print out the contents of the vert and ind lists
-
-		var vertArr = new Vertex [vert.size()];
-		for (int i = 0; i < vert.size(); i++) {
-			vertArr[i] = vert.get(i);
-		}
-		var indArr = new int [ind.size()];
-		for (int i = 0; i < ind.size(); i++) {
-			indArr[i] = ind.get(i);
-		}
-
-		var thisMesh = new Mesh(vertArr, indArr, material);
-
-		thisMesh.create();
-		object.setMesh(thisMesh);
 		renderer.renderMesh(object, camera);
 
 		window.swapBuffers();
+		object.getMesh().destroy();
 	}
+
+
+
 
 
 
 	
 	private void close() {
 		window.destroy();
-		mesh.destroy();
+
+		material.destroy();
 		shader.destroy();
 	}
 	
 	public static void main(String[] args) {
+
+
+
 		new Main().start();
 	}
 }

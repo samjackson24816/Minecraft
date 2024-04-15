@@ -89,7 +89,7 @@ public class BlockUtils {
 
 
     public BlockUtils() {
-        blockData.put(1, new BlockData( "grass", new BlockTexture(new Vector2i(0, 0), new Vector2i(48, 0), new Vector2i(32, 0))));
+        blockData.put(1, new BlockData( "grass", new BlockTexture(new Vector2i(0, 0), new Vector2i(32, 0), new Vector2i(48, 0), new Vector2i(48, 16), new Vector2i(48, 32), new Vector2i(48, 48))));
         blockData.put(2, new BlockData( "dirt", new BlockTexture(new Vector2i(32, 0))));
         blockData.put(3, new BlockData( "stone", new BlockTexture(new Vector2i(16, 0))));
         blockData.put(4, new BlockData( "sand", new BlockTexture(new Vector2i(32, 16))));
@@ -122,6 +122,8 @@ public class BlockUtils {
     public void addBlockDataToLists(int id, int face, Vector3f position, ArrayList<Vertex> vertices, ArrayList<Integer> indices) {
 
         BlockData data = getBlockData(id);
+
+
 
         // Top, bottom, front, back, left, right
         switch (face) {
@@ -175,13 +177,15 @@ public class BlockUtils {
 
         }
 
-        indices.add(0);
-        indices.add(1);
-        indices.add(2);
+        int indicesOffset = vertices.size() - 4;
 
-        indices.add(0);
-        indices.add(3);
-        indices.add(2);
+        indices.add(indicesOffset);
+        indices.add(indicesOffset + 1);
+        indices.add(indicesOffset + 2);
+
+        indices.add(indicesOffset);
+        indices.add(indicesOffset + 2);
+        indices.add(indicesOffset + 3);
     }
 
 

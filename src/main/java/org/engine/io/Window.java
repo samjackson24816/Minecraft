@@ -14,6 +14,7 @@ public class Window {
 	private String title;
 	private long window;
 	private int frames;
+	private int fps;
 	private static long time;
 	private Input input;
 	private Vector3f background = new Vector3f(0, 0, 0);
@@ -22,6 +23,7 @@ public class Window {
 	private boolean isFullscreen;
 	private int[] windowPosX = new int[1], windowPosY = new int[1];
 	private Matrix4f projection;
+	private String titleData;
 	
 	public Window(int width, int height, String title) {
 		this.width = width;
@@ -87,10 +89,12 @@ public class Window {
 		GLFW.glfwPollEvents();
 		frames++;
 		if (System.currentTimeMillis() > time + 1000) {
-			GLFW.glfwSetWindowTitle(window, title + " | FPS: " + frames);
+			fps = frames;
 			time = System.currentTimeMillis();
 			frames = 0;
 		}
+
+		GLFW.glfwSetWindowTitle(window, title + " | FPS: " + fps + " | " + titleData);
 	}
 	
 	public void swapBuffers() {
@@ -146,6 +150,10 @@ public class Window {
 
 	public long getWindow() {
 		return window;
+	}
+
+	public void setTitleData(String titleData) {
+		this.titleData = titleData;
 	}
 
 	public Matrix4f getProjectionMatrix() {

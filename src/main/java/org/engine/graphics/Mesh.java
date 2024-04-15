@@ -76,7 +76,7 @@ public class Mesh {
 		
 		GL30.glDeleteVertexArrays(vao);
 		
-		material.destroy();
+		//material.destroy();
 	}
 
 	public Vertex[] getVertices() {
