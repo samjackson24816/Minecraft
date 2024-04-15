@@ -26,6 +26,10 @@ public class Vector3f {
 	public static Vector3f multiply(Vector3f vector1, Vector3f vector2) {
 		return new Vector3f(vector1.getX() * vector2.getX(), vector1.getY() * vector2.getY(), vector1.getZ() * vector2.getZ());
 	}
+
+	public static Vector3f multiply(Vector3f vector, float value) {
+		return new Vector3f(vector.getX() * value, vector.getY() * value, vector.getZ() * value);
+	}
 	
 	public static Vector3f divide(Vector3f vector1, Vector3f vector2) {
 		return new Vector3f(vector1.getX() / vector2.getX(), vector1.getY() / vector2.getY(), vector1.getZ() / vector2.getZ());
@@ -94,5 +98,9 @@ public class Vector3f {
 
 	public void setZ(float z) {
 		this.z = z;
+	}
+
+	public float magnitude() {
+		return (float) Math.sqrt(x * x + y * y + z * z);
 	}
 }

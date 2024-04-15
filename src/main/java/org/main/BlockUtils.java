@@ -3,13 +3,14 @@ package org.main;
 import org.engine.graphics.Material;
 import org.engine.graphics.Mesh;
 import org.engine.graphics.Vertex;
+import org.engine.maths.PerlinNoise;
 import org.engine.maths.Vector2f;
 import org.engine.maths.Vector2i;
 import org.engine.maths.Vector3f;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Random;
 
 public class BlockUtils {
 
@@ -89,16 +90,23 @@ public class BlockUtils {
 
 
     public BlockUtils() {
-        blockData.put(1, new BlockData( "grass", new BlockTexture(new Vector2i(0, 0), new Vector2i(32, 0), new Vector2i(48, 0), new Vector2i(48, 16), new Vector2i(48, 32), new Vector2i(48, 48))));
+        blockData.put(1, new BlockData( "grass", new BlockTexture(new Vector2i(0, 0), new Vector2i(48, 0), new Vector2i(32, 0))));
         blockData.put(2, new BlockData( "dirt", new BlockTexture(new Vector2i(32, 0))));
         blockData.put(3, new BlockData( "stone", new BlockTexture(new Vector2i(16, 0))));
         blockData.put(4, new BlockData( "sand", new BlockTexture(new Vector2i(32, 16))));
+        blockData.put(5, new BlockData("bedrock", new BlockTexture(new Vector2i(16, 16))));
+        blockData.put(6, new BlockData("cobblestone", new BlockTexture(new Vector2i(0, 16))));
+        blockData.put(7, new BlockData("coal ore", new BlockTexture(new Vector2i(32, 32))));
+        blockData.put(8, new BlockData("diamond ore", new BlockTexture(new Vector2i(32, 48))));
+        blockData.put(9, new BlockData("glass", new BlockTexture(new Vector2i(16, 48))));
+        blockData.put(10, new BlockData("sponge", new BlockTexture(new Vector2i(0, 48))));
     }
 
     public BlockData getBlockData(int id) {
         return blockData.get(id);
     }
 
+    // Returns the texture coordinates for the top left corner of the texture, normalized between 0 and 1 so OpenGL can use it
     public Vector2f getNormalCoords(Vector2i coords) {
         return new Vector2f(coords.getX() / 64.0f, coords.getY() / 64.0f);
     }
@@ -119,6 +127,7 @@ public class BlockUtils {
         return getNormalCoords(new Vector2i(coords.getX() + 16, coords.getY() + 16));
     }
 
+    // Adds the data for the mesh to the ArrayLists that are passed into the function.  We do this so we can construct a single mesh after collecting all the block faces and putting them into these two lists
     public void addBlockDataToLists(int id, int face, Vector3f position, ArrayList<Vertex> vertices, ArrayList<Integer> indices) {
 
         BlockData data = getBlockData(id);
@@ -189,132 +198,100 @@ public class BlockUtils {
     }
 
 
+    public static Chunk generateSuperflat() {
+        var chunk = new Chunk(0, 0, 0, 48, 16, 48);
 
-    public Mesh getBlockMesh(int id, int face, Vector3f position) {
-        BlockData data = getBlockData(id);
-        //Vector2i[] textures = data.textures.getTextures();
-
-        // Top, bottom, front, back, left, right
-        switch (face) {
-            case 0:
-                return new Mesh(new Vertex[] {
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, 0.5f, 0.5f), position), new Vector3f(0, 0, 1), getTexTopLeft(data.textures.getTop())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, 0.5f, 0.5f), position), new Vector3f(0, 0, 1), getTexTopRight(data.textures.getTop())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, 0.5f, -0.5f), position), new Vector3f(0, 0, 1), getTexBottomRight(data.textures.getTop())),
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, 0.5f, -0.5f), position), new Vector3f(0, 0, 1), getTexBottomLeft(data.textures.getTop()))
-                }, new int[] {
-                        0, 1, 2,
-                        0, 3, 2
-                }, new Material("/textures/MinecraftTextures.png"));
-            case 1:
-                return new Mesh(new Vertex[] {
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, -0.5f, 0.5f), position), new Vector3f(0, 0, -1), getTexTopLeft(data.textures.getBottom())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, -0.5f, 0.5f), position), new Vector3f(0, 0, -1), getTexTopRight(data.textures.getBottom())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, -0.5f, -0.5f), position), new Vector3f(0, 0, -1), getTexBottomRight(data.textures.getBottom())),
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, -0.5f, -0.5f), position), new Vector3f(0, 0, -1), getTexBottomLeft(data.textures.getBottom()))
-                }, new int[] {
-                        0, 1, 2,
-                        0, 3, 2
-                }, new Material("/textures/MinecraftTextures.png"));
-            case 2:
-                return new Mesh(new Vertex[] {
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, -0.5f, 0.5f), position), new Vector3f(0, 1, 0), getTexBottomLeft(data.textures.getFront())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, -0.5f, 0.5f), position), new Vector3f(0, 1, 0), getTexBottomRight(data.textures.getFront())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, 0.5f, 0.5f), position), new Vector3f(0, 1, 0), getTexTopRight(data.textures.getFront())),
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, 0.5f, 0.5f), position), new Vector3f(0, 1, 0), getTexTopLeft(data.textures.getFront()))
-                }, new int[] {
-                        0, 1, 2,
-                        0, 3, 2
-                }, new Material("/textures/MinecraftTextures.png"));
-            case 3:
-                return new Mesh(new Vertex[] {
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, -0.5f, -0.5f), position), new Vector3f(0, -1, 0), getTexBottomLeft(data.textures.getBack())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, -0.5f, -0.5f), position), new Vector3f(0, -1, 0), getTexBottomRight(data.textures.getBack())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, 0.5f, -0.5f), position), new Vector3f(0, -1, 0), getTexTopRight(data.textures.getBack())),
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, 0.5f, -0.5f), position), new Vector3f(0, -1, 0), getTexTopLeft(data.textures.getBack()))
-                }, new int[] {
-                        0, 1, 2,
-                        0, 3, 2
-                }, new Material("/textures/MinecraftTextures.png"));
-            case 4:
-                return new Mesh(new Vertex[] {
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, -0.5f, 0.5f), position), new Vector3f(-1, 0, 0), getTexBottomLeft(data.textures.getLeft())),
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, -0.5f, -0.5f), position), new Vector3f(-1, 0, 0), getTexBottomRight(data.textures.getLeft())),
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, 0.5f, -0.5f), position), new Vector3f(-1, 0, 0), getTexTopRight(data.textures.getLeft())),
-                        new Vertex(Vector3f.add(new Vector3f(-0.5f, 0.5f, 0.5f), position), new Vector3f(-1, 0, 0), getTexTopLeft(data.textures.getLeft()))
-                }, new int[] {
-                        0, 1, 2,
-                        0, 3, 2
-                }, new Material("/textures/MinecraftTextures.png"));
-            case 5:
-                return new Mesh(new Vertex[] {
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, -0.5f, 0.5f), position), new Vector3f(1, 0, 0), getTexBottomLeft(data.textures.getRight())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, -0.5f, -0.5f), position), new Vector3f(1, 0, 0), getTexBottomRight(data.textures.getRight())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, 0.5f, -0.5f), position), new Vector3f(1, 0, 0), getTexTopRight(data.textures.getRight())),
-                        new Vertex(Vector3f.add(new Vector3f(0.5f, 0.5f, 0.5f), position), new Vector3f(1, 0, 0), getTexTopLeft(data.textures.getRight()))
-                }, new int[] {
-                        0, 1, 2,
-                        0, 3, 2
-                }, new Material("/textures/MinecraftTextures.png"));
-
-
-            default:
-                System.out.println("Face not implemented");
+        // Bottom layer is bedrock
+        for (int x = 0; x < chunk.WORLD_WIDTH; x++) {
+            for (int z = 0; z < chunk.WORLD_DEPTH; z++) {
+                chunk.blocks[x][0][z] = 5;
+            }
         }
 
+        // Next 3 layers are stone
+        for (int y = 1; y < 4; y++) {
+            for (int x = 0; x < chunk.WORLD_WIDTH; x++) {
+                for (int z = 0; z < chunk.WORLD_DEPTH; z++) {
+                    chunk.blocks[x][y][z] = 3;
+                }
+            }
+        }
 
-        /*var mesh = new Mesh(new Vertex[] {
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), new Vector3f(0, 0, 1), getTextureCoords(textures[0])),
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), new Vector3f(0, 0, 1), getTextureCoords(textures[0])),
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), new Vector3f(0, 0, 1), getTextureCoords(textures[0])),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), new Vector3f(0, 0, 1), getTextureCoords(textures[0])),
+        // Next 3 layers are dirt
+        for (int y = 4; y < 7; y++) {
+            for (int x = 0; x < chunk.WORLD_WIDTH; x++) {
+                for (int z = 0; z < chunk.WORLD_DEPTH; z++) {
+                    chunk.blocks[x][y][z] = 2;
+                }
+            }
+        }
 
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), new Vector3f(0, 0, -1), getTextureCoords(textures[1])),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), new Vector3f(0, 0, -1), getTextureCoords(textures[1])),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), new Vector3f(0, 0, -1), getTextureCoords(textures[1])),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), new Vector3f(0, 0, -1), getTextureCoords(textures[1])),
+        // Top layer is grass
+        for (int x = 0; x < chunk.WORLD_WIDTH; x++) {
+            for (int z = 0; z < chunk.WORLD_DEPTH; z++) {
+                chunk.blocks[x][7][z] = 1;
+            }
+        }
 
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), new Vector3f(0, 1, 0), getTextureCoords(textures[2])),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), new Vector3f(0, 1, 0), getTextureCoords(textures[2])),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), new Vector3f(0, 1, 0), getTextureCoords(textures[2])),
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), new Vector3f(0, 1, 0), getTextureCoords(textures[2])),
+        return chunk;
 
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), new Vector3f(0, -1, 0), getTextureCoords(textures[3])),
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), new Vector3f(0, -1, 0), getTextureCoords(textures[3])),
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), new Vector3f(0, -1, 0), getTextureCoords(textures[3])),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), new Vector3f(0, -1, 0), getTextureCoords(textures[3])),
+    }
 
-                new Vertex(new Vector3f(-0.5f, -0.5f, -0.5f), new Vector3f(-1, 0, 0), getTextureCoords(textures[4])),
-                new Vertex(new Vector3f(-0.5f, 0.5f, -0.5f), new Vector3f(-1, 0, 0), getTextureCoords(textures[4])),
-                new Vertex(new Vector3f(-0.5f, 0.5f, 0.5f), new Vector3f(-1, 0, 0), getTextureCoords(textures[4])),
-                new Vertex(new Vector3f(-0.5f, -0.5f, 0.5f), new Vector3f(-1, 0, 0), getTextureCoords(textures[4])),
 
-                new Vertex(new Vector3f(0.5f, -0.5f, -0.5f), new Vector3f(1, 0, 0), getTextureCoords(textures[5])),
-                new Vertex(new Vector3f(0.5f, 0.5f, -0.5f), new Vector3f(1, 0, 0), getTextureCoords(textures[5])),
-                new Vertex(new Vector3f(0.5f, 0.5f, 0.5f), new Vector3f(1, 0, 0), getTextureCoords(textures[5])),
-                new Vertex(new Vector3f(0.5f, -0.5f, 0.5f), new Vector3f(1, 0, 0), getTextureCoords(textures[5]))
-            },
-            new int[] {
-                0, 1, 2,
-                0, 2, 3,
+    public static Chunk generateHills() {
+        var chunk = new Chunk(0, 0, 0, 64, 16, 64);
 
-                4, 5, 6,
-                4, 6, 7,
+        Random random = new Random();
 
-                8, 9, 10,
-                8, 10, 11,
+        // First layer is bedrock
+        for (int x = 0; x < chunk.WORLD_WIDTH; x++) {
+            for (int z = 0; z < chunk.WORLD_DEPTH; z++) {
+                chunk.blocks[x][0][z] = 5;
+            }
+        }
 
-                12, 13, 14,
-                12, 14, 15,
+        var noise = new PerlinNoise();
 
-                16, 17, 18,
-                16, 18, 19,
+        for (int x = 0; x < chunk.WORLD_WIDTH; x++) {
+            for (int z = 0; z < chunk.WORLD_DEPTH; z++) {
+                int height = (int) (noise.noise(x / 10.0, z / 10.0) * 6) + 8;
+                for (int y = 1; y < height / 2; y++) {
+                    var d = random.nextDouble();
+                    if (d < 0.005) {
+                        chunk.blocks[x][y][z] = 8;
+                    } else if (d < 0.02) {
+                        chunk.blocks[x][y][z] = 7;
+                    } else {
+                        chunk.blocks[x][y][z] = 3;
+                    }
+                }
+                for (int y = height / 2; y < height; y++) {
+                    chunk.blocks[x][y][z] = 2;
+                }
+                chunk.blocks[x][height][z] = 1;
+            }
+        }
 
-                20, 21, 22,
-                20, 22, 23
-            },
-            new Material("/textures/MinecraftTextures.png")
-        );*/
+        return chunk;
+    }
+
+    public static Vector3f getBlockOnFace(int x, int y, int z, int face) {
+        var pos = new Vector3f(x, y, z);
+        switch (face) {
+            case 0:
+                return Vector3f.add(pos, new Vector3f(0, 1, 0));
+            case 1:
+                return Vector3f.add(pos, new Vector3f(0, -1, 0));
+            case 2:
+                return Vector3f.add(pos, new Vector3f(0, 0, 1));
+            case 3:
+                return Vector3f.add(pos, new Vector3f(0, 0, -1));
+            case 4:
+                return Vector3f.add(pos, new Vector3f(-1, 0, 0));
+            case 5:
+                return Vector3f.add(pos, new Vector3f(1, 0, 0));
+        }
+        System.err.println("Invalid face: " + face);
         return null;
     }
 
