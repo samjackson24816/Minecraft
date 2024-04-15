@@ -129,4 +129,20 @@ public class Mesh {
     public Material getMaterial() {
         return material;
     }
+
+    public Mesh copy() {
+        // Return a completly deep copy of the mesh
+        Vertex[] newVertices = new Vertex[vertices.length];
+        for (int i = 0; i < vertices.length; i++) {
+            newVertices[i] = new Vertex(vertices[i].getPosition(), vertices[i].getColor(), vertices[i].getTextureCoord());
+        }
+
+        int[] newIndices = new int[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            newIndices[i] = indices[i];
+        }
+
+        return new Mesh(newVertices, newIndices, material);
+
+    }
 }

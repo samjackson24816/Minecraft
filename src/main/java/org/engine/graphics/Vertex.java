@@ -29,4 +29,8 @@ public class Vertex {
         return textureCoord;
     }
 
+    public void setPosition(Vector3f position) {
+        this.position = position;
+    }
+
 }

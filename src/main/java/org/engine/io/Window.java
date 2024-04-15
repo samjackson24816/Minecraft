@@ -39,7 +39,7 @@ public class Window {
             return;
         }
 
-        window = GLFW.glfwCreateWindow(width, height, "Game", isFullscreen ? GLFW.glfwGetPrimaryMonitor() : 0, 0);
+        window = GLFW.glfwCreateWindow(width, height, "Game", false ? GLFW.glfwGetPrimaryMonitor() : 0, 0);
 
         if (window == 0) {
             System.err.println("Error: Window failed to create!");

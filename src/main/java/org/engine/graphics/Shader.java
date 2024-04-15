@@ -90,6 +90,18 @@ public class Shader {
     }
 
 
+    public void setUniform(String name, Vector3f[] value) {
+        FloatBuffer buffer = MemoryUtil.memAllocFloat(value.length * 3);
+        float[] data = new float[value.length * 3];
+        for (int i = 0; i < value.length; i++) {
+            data[i * 3] = value[i].x;
+            data[i * 3 + 1] = value[i].y;
+            data[i * 3 + 2] = value[i].z;
+        }
+        buffer.put(data).flip();
+        GL20.glUniform3fv(getUniformLocation(name), buffer);
+    }
+
 
 
     public void bind() {

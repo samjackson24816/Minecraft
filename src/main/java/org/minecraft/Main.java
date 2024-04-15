@@ -10,6 +10,8 @@ public class Main implements Runnable {
     public Thread gameThread;
     public Window window;
 
+    private double lastTime;
+
     public final int WIDTH = 1280, HEIGHT = 760;
 
     private final Game game;
@@ -61,9 +63,15 @@ public class Main implements Runnable {
 
     public void update() {
         //System.out.println("Updating Game!");
+
+        var time = System.nanoTime();
+        var deltaTime = (time - lastTime) / 1000000000.0;
+        lastTime = time;
+
+
         window.update();
 
-        game.update(1, window);
+        game.update(deltaTime, window);
 
 
 
@@ -72,7 +80,7 @@ public class Main implements Runnable {
     public void render() {
         //System.out.println("Rendering Game!");
 
-        game.render();
+        game.render(window);
 
         window.swapBuffers();
     }
