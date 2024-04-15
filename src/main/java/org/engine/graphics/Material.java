@@ -7,6 +7,8 @@ import org.lwjgl.opengl.GL13;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+
 public class Material {
 	private String path;
 	private Texture texture;
@@ -16,10 +18,11 @@ public class Material {
 	public Material(String path) {
 		this.path = path;
 	}
+
 	
 	public void create() {
 		try {
-			texture = TextureLoader.getTexture(path.split("[.]")[1], Material.class.getResourceAsStream(path), GL11.GL_NEAREST);
+			texture = TextureLoader.getTexture(path.split("[.]")[1], Material.class.getResourceAsStream(path), GL_NEAREST);
 			width = texture.getWidth();
 			height = texture.getHeight();
 			textureID = texture.getTextureID();

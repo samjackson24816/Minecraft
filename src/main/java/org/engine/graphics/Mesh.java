@@ -20,9 +20,11 @@ public class Mesh {
 		this.indices = indices;
 		this.material = material;
 	}
+
+
 	
 	public void create() {
-		material.create();
+
 		
 		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
@@ -81,8 +83,16 @@ public class Mesh {
 		return vertices;
 	}
 
+	public void setVertices(Vertex[] vertices) {
+		this.vertices = vertices;
+	}
+
 	public int[] getIndices() {
 		return indices;
+	}
+
+	public void setIndices(int[] indices) {
+		this.indices = indices;
 	}
 
 	public int getVAO() {

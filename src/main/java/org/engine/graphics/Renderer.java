@@ -27,6 +27,9 @@ public class Renderer {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, object.getMesh().getIBO());
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, object.getMesh().getMaterial().getTextureID());
+
+		//System.out.println("Texture coord: (" + object.getMesh().getVertices()[i].getTextureCoord().getX() + ", " + object.getMesh().getVertices()[i].getTextureCoord().getY() + ")");
+
 		shader.bind();
 		shader.setUniform("model", Matrix4f.transform(object.getPosition(), object.getRotation(), object.getScale()));
 		shader.setUniform("view", Matrix4f.view(camera.getPosition(), camera.getRotation()));
