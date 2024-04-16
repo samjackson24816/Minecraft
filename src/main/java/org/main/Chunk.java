@@ -9,8 +9,15 @@ import org.engine.objects.GameObject;
 import java.util.ArrayList;
 import java.util.Random;
 
+
+/*
+ * The chunk class is a container for a group of blocks
+ * It is used to store blocks and make it easier to interact with them
+ * In a more complex implementation of the game, multiple chunks would be used to dynamically load and unload parts of the world, and split up physics interactions
+ */
 public class Chunk {
 
+    // Position
     private int x, y, z;
 
 
@@ -43,6 +50,7 @@ public class Chunk {
                         var position = new Vector3f(x, y, z);
 
                         for (int i = 0; i < 6; i++) {
+                            // In order to optimize the final mesh, faces that can't be seen are not added
                             if (faceOnOutside(x, y, z, i)) {
                                 blockUtils.addBlockDataToLists(blocks[x][y][z], i, position, vert, ind);
                             }
@@ -125,7 +133,7 @@ public class Chunk {
         for (int i = 0; i < iterations; i++) {
             var hit = pointHit(position);
             if (hit.hit) {
-                hit.face = faceThatTheLineSegmentIntersects(lastPosition, position, hit.x, hit.y, hit.z);
+                hit.face = BlockUtils.faceThatTheLineSegmentIntersects(lastPosition, position, hit.x, hit.y, hit.z);
                 return hit;
             }
             lastPosition = position;
@@ -149,68 +157,7 @@ public class Chunk {
         return new HitInfo(hit, blockId, x, y, z, -1);
     }
 
-    public static int faceThatTheLineSegmentIntersects(Vector3f outside, Vector3f inside, int x, int y, int z) {
 
-        // Represent the line as V + t * D
-        Vector3f D = Vector3f.normalize(Vector3f.subtract(inside, outside));
-        // Check top face
-        if (outside.getY() > y + 0.5) {
-            float deltaY = y + 0.5f - outside.getY();
-            float t = deltaY / D.getY();
-            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
-            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5) {
-                return 0;
-            }
-        }
-        // Check bottom face
-        if (outside.getY() < y - 0.5) {
-            float deltaY = y - 0.5f - outside.getY();
-            float t = deltaY / D.getY();
-            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
-            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5) {
-                return 1;
-            }
-        }
-        // Check front face
-        if (outside.getZ() > z + 0.5) {
-            float deltaZ = z + 0.5f - outside.getZ();
-            float t = deltaZ / D.getZ();
-            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
-            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
-                return 2;
-            }
-        }
-        // Check back face
-        if (outside.getZ() < z - 0.5) {
-            float deltaZ = z - 0.5f - outside.getZ();
-            float t = deltaZ / D.getZ();
-            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
-            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
-                return 3;
-            }
-        }
-        // Check left face
-        if (outside.getX() < x - 0.5) {
-            float deltaX = x - 0.5f - outside.getX();
-            float t = deltaX / D.getX();
-            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
-            if (positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
-                return 4;
-            }
-        }
-        // Check right face
-        if (outside.getX() > x + 0.5) {
-            float deltaX = x + 0.5f - outside.getX();
-            float t = deltaX / D.getX();
-            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
-            if (positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
-                return 5;
-            }
-        }
-
-        return -1;
-
-    }
 
 
     public boolean blockInBounds(Vector3f position) {

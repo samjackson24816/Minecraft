@@ -8,6 +8,11 @@ import java.util.Random;
 
 import static org.engine.maths.MathUtils.modulusAngleVector;
 
+/*
+    * The player class is a container for the player character and all of its properties
+    * It handles player movement, input, and interactions with the world
+    * The player is a simple first person character that can move around and interact with the world
+ */
 public class Player {
     private Vector3f position, rotation;
 
@@ -19,6 +24,7 @@ public class Player {
     private int blockSelected = 1;
 
     private boolean rightMouseDown = false;
+    private boolean leftMouseDown = false;
 
     public Player(Vector3f position, Vector3f rotation) {
         this.position = position;
@@ -110,8 +116,13 @@ public class Player {
             rightMouseDown = false;
         }
 
+        if (!Input.isButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
+            leftMouseDown = false;
+        }
+
         // If the player is looking at a block, and they click the left mouse button, destroy the block
-        if (Input.isButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) && targetBlock.hit) {
+        if (Input.isButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) && !leftMouseDown && targetBlock.hit) {
+            leftMouseDown = true;
             chunk.setBlock(targetBlock.x, targetBlock.y, targetBlock.z, 0);
         }
 
@@ -124,7 +135,7 @@ public class Player {
                     && !playerIntersectingBlock((int)newBlockPos.getX(), (int)newBlockPos.getY(), (int)newBlockPos.getZ())
                     && chunk.blocks[Math.round(newBlockPos.getX())][Math.round(newBlockPos.getY())][Math.round(newBlockPos.getZ())] == 0) {
 
-                System.out.println("Placing block at " + newBlockPos.getX() + ", " + newBlockPos.getY() + ", " + newBlockPos.getZ());
+                // System.out.println("Placing block at " + newBlockPos.getX() + ", " + newBlockPos.getY() + ", " + newBlockPos.getZ());
                 chunk.setBlock(Math.round(newBlockPos.getX()), Math.round(newBlockPos.getY()), Math.round(newBlockPos.getZ()), blockSelected);
 
 

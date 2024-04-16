@@ -2,13 +2,21 @@ package org.engine.graphics;
 
 import java.io.IOException;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 
+
+/*
+ * The material class is a container for textures and texture data
+ * It is used to store textures and their properties
+ * In a more complex implementation of the game, multiple materials would be used to store different textures
+ * When you create a material, you pass in the path
+ * When you call create(), it loads the texture from the path
+ * Make sure not to call create() often!
+ */
 public class Material {
 	private String path;
 	private Texture texture;

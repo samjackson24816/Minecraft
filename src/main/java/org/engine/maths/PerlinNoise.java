@@ -2,6 +2,11 @@ package org.engine.maths;
 
 import java.util.Random;
 
+
+/*
+    * Perlin noise is a way to generate smoothly changing random values.
+    * We use it to generate the height of the terrain.
+ */
 public class PerlinNoise {
     private final int[] permutation;
 

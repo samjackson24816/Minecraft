@@ -9,6 +9,10 @@ import org.lwjgl.opengl.GL11;
 import org.engine.maths.Matrix4f;
 import org.engine.maths.Vector3f;
 
+/*
+ * Window class
+ * Handles window creation, input, and rendering
+ */
 public class Window {
 	private int width, height;
 	private String title;

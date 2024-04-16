@@ -9,6 +9,15 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
+
+
+/*
+ * Mesh class
+ * Handles mesh creation and destruction
+ * Stores vertices, indices, and material, and creates buffer objects to hold the data before it is rendered
+ * Usually, there would be many meshes in a scene, each with their own material
+ * This game uses a single giant mesh and texture, which it builds from the block grid
+ */
 public class Mesh {
 	private Vertex[] vertices;
 	private int[] indices;

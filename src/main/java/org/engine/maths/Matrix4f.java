@@ -2,6 +2,11 @@ package org.engine.maths;
 
 import java.util.Arrays;
 
+/*
+ * Matrix4f class
+ * Matrix4f is used to represent a 4x4 matrix, which are used to represent transformations in 3D space.
+ * This is needed to handle the transformations required to render 3D objects in the 3D world.
+ */
 public class Matrix4f {
 	public static final int SIZE = 4;
 	private float[] elements = new float[SIZE * SIZE];

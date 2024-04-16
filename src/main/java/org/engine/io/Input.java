@@ -6,6 +6,11 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 
+/*
+ * Input class is used to handle input from the user.
+ * It uses GLFW callbacks to handle keyboard, mouse and scroll input.
+ * This callback must be set up in order for the static calls to work!
+ */
 public class Input {
 	private static boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
 	private static boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];

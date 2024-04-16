@@ -1,7 +1,5 @@
 package org.main;
 
-import org.engine.graphics.Material;
-import org.engine.graphics.Mesh;
 import org.engine.graphics.Vertex;
 import org.engine.maths.PerlinNoise;
 import org.engine.maths.Vector2f;
@@ -12,9 +10,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+
+/*
+    * The block utils class is a utility class that contains all the data for the blocks in the game
+    * It also contains functions for generating the world
+    * Because the block data is stored in a HashMap, this class does need to be instantiated to use some of its functionality
+ */
+
 public class BlockUtils {
 
-    public class BlockData {
+    public static class BlockData {
         public String name;
 
         public BlockTexture textures;
@@ -27,7 +32,7 @@ public class BlockUtils {
 
     }
 
-    public class BlockTexture {
+    public static class BlockTexture {
         // top, bottom, front, back, left, right
         public Vector2i[] textures;
         public BlockTexture(Vector2i top, Vector2i bottom, Vector2i front, Vector2i back, Vector2i left, Vector2i right) {
@@ -84,16 +89,17 @@ public class BlockUtils {
 
     }
 
+    // Maps block IDs to block data
     public HashMap<Integer, BlockData> blockData = new HashMap<>();
 
 
 
-
+    // Instantiate one object and keep it around, so you don't have to run the whole HashMap filling code a lot
     public BlockUtils() {
-        blockData.put(1, new BlockData( "grass", new BlockTexture(new Vector2i(0, 0), new Vector2i(48, 0), new Vector2i(32, 0))));
-        blockData.put(2, new BlockData( "dirt", new BlockTexture(new Vector2i(32, 0))));
-        blockData.put(3, new BlockData( "stone", new BlockTexture(new Vector2i(16, 0))));
-        blockData.put(4, new BlockData( "sand", new BlockTexture(new Vector2i(32, 16))));
+        blockData.put(1, new BlockData("grass", new BlockTexture(new Vector2i(0, 0), new Vector2i(48, 0), new Vector2i(32, 0))));
+        blockData.put(2, new BlockData("dirt", new BlockTexture(new Vector2i(32, 0))));
+        blockData.put(3, new BlockData("stone", new BlockTexture(new Vector2i(16, 0))));
+        blockData.put(4, new BlockData("sand", new BlockTexture(new Vector2i(32, 16))));
         blockData.put(5, new BlockData("bedrock", new BlockTexture(new Vector2i(16, 16))));
         blockData.put(6, new BlockData("cobblestone", new BlockTexture(new Vector2i(0, 16))));
         blockData.put(7, new BlockData("coal ore", new BlockTexture(new Vector2i(32, 32))));
@@ -197,7 +203,7 @@ public class BlockUtils {
         indices.add(indicesOffset + 3);
     }
 
-
+    // Generates a superflat world
     public static Chunk generateSuperflat() {
         var chunk = new Chunk(0, 0, 0, 48, 16, 48);
 
@@ -237,7 +243,7 @@ public class BlockUtils {
 
     }
 
-
+    // Generates a hilly world
     public static Chunk generateHills() {
         var chunk = new Chunk(0, 0, 0, 64, 16, 64);
 
@@ -293,6 +299,76 @@ public class BlockUtils {
         }
         System.err.println("Invalid face: " + face);
         return null;
+    }
+
+    // You have a point that you know is outside the block, and a point that you know is inside the block
+    // Imagine a line between them
+    // Which face of the block does that line intersect?
+    // We can find this by taking advantage of the fact that the block is axis aligned
+    // We can calculate the distance to each face along their axes and then use this info to get where the line intersects the plane of the face.
+    // Then, we check whether this point is within the actual face of the block
+
+    public static int faceThatTheLineSegmentIntersects(Vector3f outside, Vector3f inside, int x, int y, int z) {
+
+        // Represent the line as V + t * D
+        Vector3f D = Vector3f.normalize(Vector3f.subtract(inside, outside));
+        // Check top face
+        if (outside.getY() > y + 0.5) {
+            float deltaY = y + 0.5f - outside.getY();
+            float t = deltaY / D.getY();
+            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
+            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5) {
+                return 0;
+            }
+        }
+        // Check bottom face
+        if (outside.getY() < y - 0.5) {
+            float deltaY = y - 0.5f - outside.getY();
+            float t = deltaY / D.getY();
+            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
+            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5) {
+                return 1;
+            }
+        }
+        // Check front face
+        if (outside.getZ() > z + 0.5) {
+            float deltaZ = z + 0.5f - outside.getZ();
+            float t = deltaZ / D.getZ();
+            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
+            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
+                return 2;
+            }
+        }
+        // Check back face
+        if (outside.getZ() < z - 0.5) {
+            float deltaZ = z - 0.5f - outside.getZ();
+            float t = deltaZ / D.getZ();
+            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
+            if (positionAtPlane.getX() >= x - 0.5 && positionAtPlane.getX() <= x + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
+                return 3;
+            }
+        }
+        // Check left face
+        if (outside.getX() < x - 0.5) {
+            float deltaX = x - 0.5f - outside.getX();
+            float t = deltaX / D.getX();
+            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
+            if (positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
+                return 4;
+            }
+        }
+        // Check right face
+        if (outside.getX() > x + 0.5) {
+            float deltaX = x + 0.5f - outside.getX();
+            float t = deltaX / D.getX();
+            var positionAtPlane = Vector3f.add(outside, Vector3f.multiply(D, t));
+            if (positionAtPlane.getZ() >= z - 0.5 && positionAtPlane.getZ() <= z + 0.5 && positionAtPlane.getY() >= y - 0.5 && positionAtPlane.getY() <= y + 0.5) {
+                return 5;
+            }
+        }
+
+        return -1;
+
     }
 
 
